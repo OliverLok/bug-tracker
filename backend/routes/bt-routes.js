@@ -1,19 +1,20 @@
 const express = require('express');
-const { auth } = require('express-openid-connect');
+// const { auth } = require('express-openid-connect');
 const router = express.Router();
+const createTicket = require('../models/ticket-models')
 
 //openID stuff
-const config = {
-    authRequired: false,
-    auth0Logout: true,
-    secret: process.env.SECRET,
-    baseURL: process.env.BASEURL,
-    clientID: process.env.CLIENTID,
-    issuerBaseURL: process.env.ISSUER
-  };
+// const config = {
+//     authRequired: false,
+//     auth0Logout: true,
+//     secret: process.env.SECRET,
+//     baseURL: process.env.BASEURL,
+//     clientID: process.env.CLIENTID,
+//     issuerBaseURL: process.env.ISSUER
+// };
 
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-router.use(auth(config))
+// // auth router attaches /login, /logout, and /callback routes to the baseURL
+// router.use(auth(config))
 
 //home page 
 router.get('/',(req, res) => {
@@ -33,7 +34,14 @@ router.get('/:id', (req, res) => {
 })
 
 // POST a new ticket
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
+    const {title, titleDescription} = req.body
+    try{
+        const ticket = await createTicket.create({title, titleDescription})
+        res.status(200).json(ticket)
+    }catch(error){
+        res.status(400).json({error: error.message})
+    }
     res.json({msg: 'POST a new ticket'})
 })
 
